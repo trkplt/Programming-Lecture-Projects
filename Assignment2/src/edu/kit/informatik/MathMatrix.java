@@ -8,7 +8,13 @@ public class MathMatrix {
         this.matrix = matrix;
     }
 
-    public void add(int[][] secondMatrix) {
+    public int[][] getMatrix() {
+        return matrix;
+    }
+
+    public void add(MathMatrix secondMatrixObj) {
+        int[][] secondMatrix = secondMatrixObj.getMatrix();
+
         for (int r = 0; r < this.matrix.length; r++) {
             for (int c = 0; c < this.matrix[0].length; c++) {
                 matrix[r][c] += secondMatrix[r][c];
@@ -16,11 +22,12 @@ public class MathMatrix {
         }
     }
 
-    public void multiply(int[][] secondMatrix) {
+    public void multiply(MathMatrix secondMatrixObj) {
+        int[][] secondMatrix = secondMatrixObj.getMatrix();
         int[][] result = new int[this.matrix.length][secondMatrix[0].length];
 
         for (int r = 0; r < result.length; r++) {
-            for (int c = 0; r < result[0].length; c++) {
+            for (int c = 0; c < result[0].length; c++) {
                 int sum = 0;
 
                 for (int i = 0; i < secondMatrix.length; i++) {
