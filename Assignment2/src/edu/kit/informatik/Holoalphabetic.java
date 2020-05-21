@@ -43,7 +43,9 @@ public class Holoalphabetic {
             if (fLExists | fUExists) {
                 containedLetterCount++;
 
-                if ((fLExists & lLExists) | (fUExists & lUExists)) {
+                if ((fLExists & lLExists) | (fUExists & lUExists)
+                    | (fLExists & lUExists) | (fUExists & lLExists)
+                    | (fLExists & fUExists)) {
                     secondAppearedCount++;
                 }
             }
