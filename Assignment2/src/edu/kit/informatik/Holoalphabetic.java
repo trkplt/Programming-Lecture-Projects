@@ -1,7 +1,23 @@
 package edu.kit.informatik;
 
-public class Holoalphabetic {
+/**
+ * This class is here for logic and maintaining in- and output of the holoalphabetic-check programme.
+ * @author Tarik Polat
+ * @version 1.0.0
+ */
+public final class Holoalphabetic {
 
+    /*
+    Private because no objects of this class shall be created, this class is here only for logic and maintaining
+    in- and output of the holoalphabetic-check programme.
+     */
+    private Holoalphabetic() { }
+
+    /**
+     * Main method for the holoalphabetic-check programme. Inputs are taken care of in this method.
+     * @param args arguments of the programme but not needed because commands are taken via command line entries
+     *             after the run of the program
+     */
     public static void main(String[] args) {
         boolean go = true;
 
@@ -20,6 +36,10 @@ public class Holoalphabetic {
         }
     }
 
+    /**
+     * The logic of the holoalphabetic-check programme. The outputs are taken care of in this method.
+     * @param args the exact args from the main method
+     */
     private static void holoalphabetic(String[] args) {
         int containedLetterCount = 0;
         int secondAppearedCount = 0;
@@ -42,21 +62,20 @@ public class Holoalphabetic {
 
             if (fLExists | fUExists) {
                 containedLetterCount++;
+            }
 
-                if ((fLExists & lLExists) | (fUExists & lUExists)
-                    | (fLExists & lUExists) | (fUExists & lLExists)
-                    | (fLExists & fUExists)) {
-                    secondAppearedCount++;
-                }
+            if ((fLExists | fUExists)
+                    & ((fLExists & lLExists) | (fUExists & lUExists) | (fLExists & fUExists))) {
+                secondAppearedCount++;
             }
         }
 
-        if (containedLetterCount == 26) {
-            if (secondAppearedCount > 0) {
-                Terminal.printLine("pangram");
-            } else {
-                Terminal.printLine("isogram");
-            }
+        boolean completeUse = containedLetterCount == 26;
+
+        if (completeUse & secondAppearedCount > 0) {
+            Terminal.printLine("pangram");
+        } else if (completeUse) {
+            Terminal.printLine("isogram");
         } else {
             Terminal.printLine("false");
         }

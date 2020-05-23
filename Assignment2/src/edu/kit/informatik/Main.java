@@ -1,7 +1,22 @@
 package edu.kit.informatik;
 
-public class Main {
+/**
+ * This class is here for maintaining in- and output of the matrix calculation programme.
+ * @author Tarik Polat
+ * @version 1.0.0
+ */
+public final class Main {
 
+    /*
+    Private because no objects of this class shall be created, this class is here only for maintaining
+    in- and output of the matrix calculation programme.
+     */
+    private Main() { }
+
+    /**
+     * Main method for the matrix calculation programme.
+     * @param args arguments of the programme
+     */
     public static void main(String[] args) {
         MathMatrix firstMatrix;
         MathMatrix secondMatrix = null;
@@ -30,6 +45,10 @@ public class Main {
         }
     }
 
+    /*
+    To get the matrix as a multidimensional integer array. The parameter is the argument from the args of main method
+    containing the string representation of a matrix and must be semantically and grammatically correct.
+     */
     private static int[][] getMatrix(String string) {
         String[] rows = string.split(";");
         int columnCount = rows[0].split(",").length;
