@@ -232,7 +232,6 @@ public class SongQueueApp {
                 Terminal.printError("the given command is not supported!");
         }
 
-        //BİR DEFA DOĞRU ÇALIŞTI BİR DEFA ÇALIŞMADI KONTROL ET
         if (go) {
             main(new String[0]);
         }
