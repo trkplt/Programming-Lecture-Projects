@@ -118,7 +118,7 @@ public class SongQueueApp {
         int diff = before - after;
 
         if (diff > 0) {
-            Terminal.printLine("Removed " + diff + " songs");
+            Terminal.printLine("Removed " + diff + " songs.");
         }
     }
 
