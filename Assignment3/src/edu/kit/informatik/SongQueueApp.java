@@ -197,7 +197,7 @@ public class SongQueueApp {
         boolean go = true;
         String[] input = Terminal.readLine().split(" ");
 
-        if (input.length == 0) {
+        if (input.length == 0 || input[0].equals("")) {
             Terminal.printError("no command has been given!");
             main(new String[0]);
             return;
