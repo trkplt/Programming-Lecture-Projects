@@ -9,7 +9,7 @@ public class DictionaryUtil {
         return ALPHABET;
     }
 
-    public static boolean isAlphabet(Word word) {
+    public static boolean isAlphabet(Word word) throws NullPointerException {
         String string = word.getWord();
 
         for (char letter : string.toCharArray()) {

@@ -1,5 +1,7 @@
 package edu.kit.informatik;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -12,10 +14,6 @@ public class Dictionary {
     }
 
     public boolean add(Word origin, Word translation) throws IllegalArgumentException, NullPointerException {
-        if (origin == null || translation == null) {
-            throw new NullPointerException();
-        }
-
         if (!DictionaryUtil.isAlphabet(origin) || !DictionaryUtil.isAlphabet(translation)) {
             throw new IllegalArgumentException();
         }
@@ -29,15 +27,28 @@ public class Dictionary {
         return dictionary.put(origin, value) == null;
     }
 
-    public boolean remove(Word word) {
+    public boolean remove(Word word) throws IllegalArgumentException, NullPointerException {
+        if (!DictionaryUtil.isAlphabet(word)) {
+            throw new IllegalArgumentException();
+        }
+
         return dictionary.remove(word) != null;
     }
 
-    public TreeMap<Word, TreeSet<Word>> getDictionary() {
-        return dictionary;
+    public List<Word> getOriginWords() {
+        return new ArrayList<>(dictionary.keySet());
     }
 
-    public TreeSet<Word> getTranslations(Word word) {
-        return dictionary.get(word);
+    public List<Word> getTranslations(Word word) throws IllegalArgumentException, NullPointerException {
+        if (!DictionaryUtil.isAlphabet(word)) {
+            throw new IllegalArgumentException();
+        }
+        TreeSet<Word> translations = dictionary.get(word);
+
+        if (translations == null) {
+            return null;
+        } else {
+            return new ArrayList<>(translations);
+        }
     }
 }
