@@ -2,13 +2,25 @@ package edu.kit.informatik;
 
 import java.util.List;
 
-public class SongQueueApp {
+/**
+ * Main class for the SongQueueApp. Contains methods for io, output and input check.
+ *
+ * @author Tarik Polat
+ * @version 1.0.0
+ */
+public final class SongQueueApp {
 
     private static final String IDERROR = "ID must be an integer in interval (0, 10^5)!";
     private static final String LENGTHERROR = "length must be given in seconds as an integer in interval (0, 2^31)!";
     private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜẞ abcdefghijklmnopqrstuvwxyzäöüß";
     private static final SongQueue QUEUE = new SongQueue();
 
+    //private constructor because no objects of this class shall be created
+    private SongQueueApp() throws IllegalAccessException {
+        throw new IllegalAccessException();
+    }
+
+    //checks if the given word is made of only letters and space
     private static boolean isAlphabet(String word) {
         for (char c : word.toCharArray()) {
             String letter = String.valueOf(c);
@@ -20,6 +32,7 @@ public class SongQueueApp {
         return true;
     }
 
+    //helper method to check the boundaries of the int in the string and extract it
     private static int intParser(String intString, int min, int max, String errorMess) throws NumberFormatException {
         int parsed;
         try {
@@ -35,6 +48,7 @@ public class SongQueueApp {
         return parsed;
     }
 
+    //checks if the given word is alphabetic
     private static boolean alphabetCorrect(String word, String checkedName) {
         if (!isAlphabet(word)) {
             Terminal.printError(checkedName + " must be given using German alphabet!");
@@ -43,6 +57,7 @@ public class SongQueueApp {
         return true;
     }
 
+    //checks the add command and connects it to the add operation for SongQueue
     private static void add(String[] input) {
         if (input.length == 1) {
             Terminal.printError("song attributes must be specified!");
@@ -98,6 +113,7 @@ public class SongQueueApp {
         }
     }
 
+    //checks remove command and connects it to remove operation for SongQueue
     private static void remove(String[] input) {
         if (!(input.length == 2)) {
             Terminal.printError("ID of the song to be removed must be given as following: remove <id>");
@@ -122,6 +138,7 @@ public class SongQueueApp {
         }
     }
 
+    //checks play command and connects it to play operation for SongQueue
     private static void play(String[] input) {
         if (input.length != 2) {
             Terminal.printError("length of the simulation must be given as following: play <length>");
@@ -138,6 +155,7 @@ public class SongQueueApp {
         QUEUE.play(length);
     }
 
+    //checks skip command and connects it to skip operation for SongQueue
     private static void skip(String[] input) {
         if (input.length != 1) {
             Terminal.printError("skip command shall not be followed by anything!");
@@ -146,6 +164,7 @@ public class SongQueueApp {
         QUEUE.skip();
     }
 
+    //checks peek command connects it to peek operation for SongQueue
     private static void peek(String[] input) {
         if (input.length != 1) {
             Terminal.printError("peek command shall not be followed by anything!");
@@ -158,6 +177,7 @@ public class SongQueueApp {
         }
     }
 
+    //checks list command and takes care of the output
     private static void list(String[] input) {
         if (input.length != 1) {
             Terminal.printError("list command shall not be followed by anything!");
@@ -171,6 +191,7 @@ public class SongQueueApp {
         }
     }
 
+    //checks history command and takes care of the output
     private static void history(String[] input) {
         if (input.length != 1) {
             Terminal.printError("history command shall not be followed by anything!");
@@ -184,6 +205,7 @@ public class SongQueueApp {
         }
     }
 
+    //checks quit command and shuts down the program if valid
     private static boolean quitValid(String[] input) {
         if (input.length != 1) {
             Terminal.printError("quit command shall not be followed by anything!");
@@ -192,6 +214,11 @@ public class SongQueueApp {
         return true;
     }
 
+    /**
+     * Main method for the SongQueueApp. Maintains in- and outputs.
+     *
+     * @param args arguments for the program, none is needed
+     */
     public static void main(String[] args) {
 
         boolean go = true;

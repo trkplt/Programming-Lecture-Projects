@@ -4,19 +4,35 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Represents a queue for songs. Contains methods to manipulate it and
+ * to retrieve information about it.
+ *
+ * @author Tarik Polat
+ * @version 1.0.0
+ */
 public class SongQueue {
     private final List<Song> queue;
     private final List<Song> finished;
 
+    /**
+     * Constructs a SongQueue object with no songs in it.
+     */
     public SongQueue() {
         queue = new ArrayList<>();
         finished = new ArrayList<>();
     }
 
+    /**
+     * To get the size of the queue.
+     *
+     * @return the size of the queue
+     */
     public int size() {
         return queue.size();
     }
 
+    //checks if a song with the same id but different attributes exists in the queue
     private boolean falseCopyExists(Song song) {
         boolean exists = false;
 
@@ -29,6 +45,13 @@ public class SongQueue {
         return exists;
     }
 
+    /**
+     * To add the song to this queue.
+     *
+     * @param song the song to be added
+     * @return true if the operation successful, false if a song with the same id
+     * but different attributes already exist in the queue
+     */
     public boolean add(Song song) {
         if (falseCopyExists(song)) {
             return false;
@@ -47,6 +70,11 @@ public class SongQueue {
         }
     }
 
+    /**
+     * To remove the song with the given ID.
+     *
+     * @param id the ID of the song to be removed
+     */
     public void remove(int id) {
         Iterator<Song> iterator = queue.iterator();
 
@@ -61,6 +89,7 @@ public class SongQueue {
         }
     }
 
+    //helper method to take care of operations in case of a complete simulation of the song at the head of the queue
     private void finishCeremony() {
         Song song = queue.get(0);
         finished.add(song);
@@ -69,6 +98,12 @@ public class SongQueue {
         queue.remove(0);
     }
 
+    /**
+     * To simulate the queue.
+     *
+     * @param length the length of the simulation in seconds
+     * @return true if the queue completely simulated within the given length
+     */
     public boolean play(int length) {
         Song song = queue.get(0);
         int remaining;
@@ -89,18 +124,36 @@ public class SongQueue {
         return false;
     }
 
+    /**
+     * To skip the next song in the queue.
+     */
     public void skip() {
         queue.remove(0);
     }
 
+    /**
+     * To get the song which is the head of this queue without removing it from the queue.
+     *
+     * @return the song which is the head of the queue
+     */
     public Song peek() {
         return queue.get(0);
     }
 
+    /**
+     * To get a list of the songs in this queue.
+     *
+     * @return the list of the songs in this queue
+     */
     public List<Song> list() {
         return queue;
     }
 
+    /**
+     * To get the list of the songs which are completely simulated.
+     *
+     * @return the list of the songs which are completely simulated
+     */
     public List<Song> history() {
         return finished;
     }

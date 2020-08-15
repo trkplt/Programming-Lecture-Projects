@@ -1,14 +1,38 @@
 package edu.kit.informatik;
 
-public class DictionaryUtil {
+/**
+ * Contains utility methods for DictinaryApp.
+ *
+ * @author Tarik Polat
+ * @version 1.0.0
+ */
+public final class DictionaryUtil {
 
     private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜẞabcdefghijklmnopqrstuvwxyzäöüß";
     private static final String SPECIALS = "ÄÖÜẞäöüß";
 
+    //private constructor because no objects of this class shall be created, this is a utility class.
+    private DictionaryUtil() throws IllegalAccessException {
+        throw new IllegalAccessException();
+    }
+
+    /**
+     * To get the German alphabet as a String.
+     *
+     * @return German alphabet as a String
+     */
     public static String getAlphabet() {
         return ALPHABET;
     }
 
+    /**
+     * Checks if the given word is only made of the letters from German alphabetç
+     *
+     * @param word the word to be checked
+     * @return true if the word only contains the letters from the German alphabet,
+     * false if it contains at least one character out of the German alphabet
+     * @throws NullPointerException if the given word is null
+     */
     public static boolean isAlphabet(Word word) throws NullPointerException {
         String string = word.getWord();
 
@@ -21,7 +45,7 @@ public class DictionaryUtil {
         return true;
     }
 
-    //TODO: WORKS CORRECTLY?
+    //transforms the word to a easier to check state for comparison
     private static String transform(String word) {
         String transformed = "";
         for (SpecialCharacters special : SpecialCharacters.values()) {
@@ -30,7 +54,15 @@ public class DictionaryUtil {
         return transformed;
     }
 
-    //TODO: IMPLEMENT
+    /**
+     * Compares two words lexicographically (for German words)
+     *
+     * @param firstWord  first word to be compared
+     * @param secondWord second word to be compared
+     * @return a negative integer if firstWord has a higher priority,
+     * a positive integer if the secondWord has a higher priority,
+     * zero if {@code firstWord.equals(secondWord)} returns true
+     */
     public static int compare(Word firstWord, Word secondWord) {
         if (firstWord.equals(secondWord)) {
             return 0;

@@ -3,10 +3,22 @@ package edu.kit.informatik;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DictionaryApp {
+/**
+ * Main class for the DictionaryApp. Contains methods for io and input check.
+ *
+ * @author Tarik Polat
+ * @version 1.0.0
+ */
+public final class DictionaryApp {
 
     private static Dictionary dictionary;
 
+    //private constructor because no objects of this class shall be created.
+    private DictionaryApp() throws IllegalAccessException {
+        throw new IllegalAccessException();
+    }
+
+    //input check for add command and connection to add operation of the Dictionary
     private static void add(String[] input) {
         if (input.length != 3) {
             Terminal.printError("add command must have the form: 'add <word> <translated_word>'");
@@ -24,6 +36,7 @@ public class DictionaryApp {
         }
     }
 
+    //input check for remove command and connection to remove operation of the Dictionary
     private static void remove(String[] input) {
         if (input.length != 2) {
             Terminal.printError("remove command must have the form: 'remove <word>'");
@@ -41,6 +54,7 @@ public class DictionaryApp {
         }
     }
 
+    //helper method to get String representation of the word and its translations
     private static String getWords(Word origin) throws IllegalArgumentException, NullPointerException {
         String output = origin.getWord() + " - ";
 
@@ -53,6 +67,7 @@ public class DictionaryApp {
         return output;
     }
 
+    //method to print all the words and their translations in the dictionary
     private static void printAll() {
         String output = "";
         List<Word> origins = dictionary.getOriginWords();
@@ -68,6 +83,7 @@ public class DictionaryApp {
         }
     }
 
+    //input check for print '<letter>' and printing action if correct
     private static void printStartsWith(String input) {
         if (input.length() != 1 || !DictionaryUtil.getAlphabet().contains(input)) {
             Terminal.printError("a single letter from German alphabet "
@@ -93,6 +109,7 @@ public class DictionaryApp {
         }
     }
 
+    //input check for print commands and connection to corresponding method
     private static void print(String[] input) {
         if (input.length == 1) {
             printAll();
@@ -108,6 +125,7 @@ public class DictionaryApp {
         printStartsWith(input[1]);
     }
 
+    //input check for 'translate <word>' and printing action if correct
     private static void translateWord(String input) {
         List<Word> translations;
 
@@ -138,6 +156,7 @@ public class DictionaryApp {
         }
     }
 
+    //helper method to build sentences
     private static List<String> sentenceBuilder(String start, List<Word> sequels) {
         List<String> sentences = new ArrayList<>();
 
@@ -152,6 +171,7 @@ public class DictionaryApp {
         }
     }
 
+    //input check for 'translate <sentence>' and print action if correct
     private static void translateSentence(String[] input) {
         List<List<Word>> possibleTranslations = new ArrayList<>();
 
@@ -201,6 +221,7 @@ public class DictionaryApp {
         Terminal.printLine(output.substring(0, output.length() - 1));
     }
 
+    //input check for translate commands and connection to corresponding methods
     private static void translate(String[] input) {
         if (input.length == 1) {
             Terminal.printError("supported translate commands are 'translate <word>' and 'translate <sentence>'!");
@@ -211,6 +232,7 @@ public class DictionaryApp {
         }
     }
 
+    //input check for 'quit' command
     private static boolean quitValid(String[] input) {
         if (input.length != 1) {
             Terminal.printError("quit command shall not be followed by anything!");
@@ -219,6 +241,7 @@ public class DictionaryApp {
         return true;
     }
 
+    //method to check the input and to construct a dictionary if correct
     private static void processFile(String[] args) {
         String[] lines = Terminal.readFile(args[0]);
         dictionary = new Dictionary();
@@ -247,6 +270,7 @@ public class DictionaryApp {
         }
     }
 
+    //method to check the commands and connect to corresponding methods
     private static void processCommand() {
         boolean go = true;
         String[] input = Terminal.readLine().split(" ");
@@ -282,6 +306,11 @@ public class DictionaryApp {
         }
     }
 
+    /**
+     * Main method for the app.
+     *
+     * @param args arguments for the app, must contain only the path to the input text file
+     */
     public static void main(String[] args) {
         if (args.length != 1) {
             Terminal.printError("only a path to a text file must be given as a parameter!");
