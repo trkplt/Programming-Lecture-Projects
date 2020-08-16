@@ -8,8 +8,18 @@ import edu.kit.informatik.baker.product.RawMaterial;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * This enum contains the commands the baker game can process. The inputs are being processed in this class and
+ * outputs are returned from here to the main.
+ *
+ * @author Tarik Polat
+ * @version 1.0.0
+ */
 public enum Command {
 
+    /**
+     * This is the roll command. It processes the input and prepares the output so that main can write it.
+     */
     ROLL("roll", Main.SPACE + Game.ROLL_PATTERN,
             "'roll'" + Main.SHALL_HAVE_STRUCTURE + "'roll <number>' (<number>" + Main.INTEGER_IN_INTERVAL + "[1-6])") {
         @Override
@@ -28,6 +38,10 @@ public enum Command {
             return winOut == null ? normalOut : normalOut + System.lineSeparator() + winOut;
         }
     },
+
+    /**
+     * This is the harvest command. It processes the input and prepares the output so that main can write it.
+     */
     HARVEST("harvest", Main.EMPTY_STRING, "'harvest'" + Main.SHALL_NOT_PROCEED) {
         @Override
         public String process(Matcher input, Game game) {
@@ -55,6 +69,10 @@ public enum Command {
             return winOut == null ? normalOut : normalOut + System.lineSeparator() + winOut;
         }
     },
+
+    /**
+     * This is the buy command. It processes the input and prepares the output so that main can write it.
+     */
     BUY("buy", Main.SPACE + RawMaterial.getPattern(),
             "'buy'" + Main.SHALL_HAVE_STRUCTURE + "'buy <resource>' (<resource>" + Main.FROM_GAME) {
         @Override
@@ -83,6 +101,10 @@ public enum Command {
             }
         }
     },
+
+    /**
+     * This is the prepare command. It processes the input and prepares the output so that main can write it.
+     */
     PREPARE("prepare", Main.SPACE + Dish.getPattern(),
             "'prepare'" + Main.SHALL_HAVE_STRUCTURE + "'prepare <recipe>' (<recipe>" + Main.FROM_GAME) {
         @Override
@@ -102,6 +124,10 @@ public enum Command {
             return winOut == null ? normalOut : normalOut + System.lineSeparator() + winOut;
         }
     },
+
+    /**
+     * This is the can-prepare? command. It processes the input and prepares the output so that main can write it.
+     */
     CAN_PREPARE("can-prepare\\?", Main.EMPTY_STRING, "'can-prepare?'" + Main.SHALL_NOT_PROCEED) {
         @Override
         public String process(Matcher input, Game game) {
@@ -111,12 +137,20 @@ public enum Command {
             return game.getDoableDishes();
         }
     },
+
+    /**
+     * This is the show-market command. It processes the input and prepares the output so that main can write it.
+     */
     SHOW_MARKET("show-market", Main.EMPTY_STRING, "'show-market'" + Main.SHALL_NOT_PROCEED) {
         @Override
         public String process(Matcher input, Game game) {
             return game.getMarketSummary();
         }
     },
+
+    /**
+     * This is the show-player command. It processes the input and prepares the output so that main can write it.
+     */
     SHOW_PLAYER("show-player", Main.SPACE + Player.getPlayerPattern(),
             "'show-player'" + Main.SHALL_HAVE_STRUCTURE
                     + "'show-player <Px>' (x" + Main.INTEGER_IN_INTERVAL + "[1-4])") {
@@ -126,6 +160,10 @@ public enum Command {
             return out == null ? NO_SUCH_PLAYER : out;
         }
     },
+
+    /**
+     * This is the turn command. It processes the input and prepares the output so that main can write it.
+     */
     TURN("turn", Main.EMPTY_STRING, "'turn'" + Main.SHALL_NOT_PROCEED) {
         @Override
         public String process(Matcher input, Game game) {
@@ -138,6 +176,10 @@ public enum Command {
             return game.turn();
         }
     },
+
+    /**
+     * This is the quit command. It processes the input and prepares the output so that main can write it.
+     */
     QUIT("quit", Main.EMPTY_STRING, "'quit'" + Main.SHALL_NOT_PROCEED) {
         @Override
         public String process(Matcher input, Game game) {
@@ -171,12 +213,32 @@ public enum Command {
     private final Pattern generalPattern;
     private final String notMatchedError;
 
+    /**
+     * This constructor creates a command for the baker game.
+     *
+     * @param coreCommandPattern is the String containing the core pattern of a command such as "roll" or "buy"
+     * @param parameterPattern is the String containing the parameter pattern of a command such as " [1-6]" or
+     *                         " (milk|egg|flour)"
+     * @param notMatchedError is the String containing the error message without
+     *                        {@link edu.kit.informatik.baker.ui.Main#ERROR_START} to print out
+     *                        in case the general pattern excluding the specific parameter pattern of the command
+     *                        matches with the input but not the specific pattern including the parameter pattern
+     */
     Command(final String coreCommandPattern, final String parameterPattern, final String notMatchedError) {
         this.pattern = Pattern.compile(coreCommandPattern + parameterPattern);
         this.generalPattern = Pattern.compile(coreCommandPattern + GENERAL_PARAMETER_PATTERN);
         this.notMatchedError = Main.ERROR_START + notMatchedError;
     }
 
+    /**
+     * This static method tries to match the given input with one of the commands in this enum. If successful, it
+     * delivers the input and the {@link edu.kit.informatik.baker.Game} instance to the
+     * {@link #process(Matcher, Game)} so that it can process the needs of the command on the given game instance.
+     *
+     * @param input is the String to be matched with the commands
+     * @param game is the Game instance to be made changes on
+     * @return a String containing either a success or an error message
+     */
     public static String processCommand(String input, Game game) {
         for (final Command command : Command.values()) {
             final Matcher generalMatcher = command.generalPattern.matcher(input);
@@ -191,12 +253,21 @@ public enum Command {
         return UNSUPPORTED_COMMAND;
     }
 
-    public static String winMessage(Game game) {
+    private static String winMessage(Game game) {
         if (game.isGameFinished()) {
             return game.getActivePlayerName() + " wins";
         }
         return null;
     }
 
-    public abstract String process(Matcher input, Game game);
+    /**
+     * This abstract method shall be implemented by the members of this enum. It should make changes on the given
+     * {@link edu.kit.informatik.baker.Game} instance according to the given input. In case of an error or an
+     * unsuccessful process should an error message be returned.
+     *
+     * @param input is the Matcher instance containing the processed input
+     * @param game is the {@link edu.kit.informatik.baker.Game} instance to be made changes on
+     * @return a String containing either a success or an error message
+     */
+    protected abstract String process(Matcher input, Game game);
 }
