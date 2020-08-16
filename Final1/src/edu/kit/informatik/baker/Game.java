@@ -52,7 +52,7 @@ public class Game {
     }
 
     public boolean isGameRunning() {
-        return this.programState.equals(ProgramState.RUNNING);
+        return this.getProgramState().equals(ProgramState.RUNNING);
     }
 
     public boolean isBoardValid() {

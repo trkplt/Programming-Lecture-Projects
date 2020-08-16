@@ -4,6 +4,12 @@ import edu.kit.informatik.baker.ui.Main;
 
 import java.util.Comparator;
 
+/**
+ * This class serves as a comparator for {@link edu.kit.informatik.baker.product.RawMaterial}s.
+ *
+ * @author Tarik Polat
+ * @version 1.0.0
+ */
 public class RawMaterialComparator implements Comparator<RawMaterial> {
 
     private static final int GREATER = Main.ONE;
@@ -12,7 +18,14 @@ public class RawMaterialComparator implements Comparator<RawMaterial> {
 
     private final Market market;
 
-    public RawMaterialComparator(final Market market) {
+    /**
+     * This constructor creates a {@link edu.kit.informatik.baker.product.RawMaterialComparator} with the given
+     * {@link edu.kit.informatik.baker.product.Market} to compare the raw materials according to their stocks (fewer
+     * is better) in the market and their name (lexicographically) in case of an equality of stocks.
+     *
+     * @param market is the {@link edu.kit.informatik.baker.product.Market} to gather the stock information
+     */
+    protected RawMaterialComparator(final Market market) {
         this.market = market;
     }
 

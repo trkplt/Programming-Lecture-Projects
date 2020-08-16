@@ -3,8 +3,9 @@ package edu.kit.informatik.baker.board;
 import edu.kit.informatik.baker.product.RawMaterial;
 
 /**
- * This class creates a template for the fields from the board from the baker game and encapsulates relevant
- * information about the fields. It also possesses a factory method to create Field objects.
+ * This class creates a template for the fields from the {@link edu.kit.informatik.baker.board.Board} from the baker
+ * game and encapsulates relevant information about the fields. It also possesses a factory method to create Field
+ * objects.
  *
  * @author Tarik Polat
  * @version 1.0.0
@@ -17,12 +18,12 @@ public abstract class Field {
     protected static final int ABBREVIATION_LENGTH = 1;
 
     /**
-     * The minimum amount of a subclass object in a board from baker game.
+     * The minimum amount of a subclass object in a {@link edu.kit.informatik.baker.board.Board} from baker game.
      */
     protected static final int MIN_FIELD_AMOUNT = 1;
 
     /**
-     * The maximum amount of a subclass object in a board from baker game.
+     * The maximum amount of a subclass object in a {@link edu.kit.informatik.baker.board.Board} from baker game.
      */
     protected static final int MAX_FIELD_AMOUNT = 8;
 
@@ -34,9 +35,12 @@ public abstract class Field {
      * This constructor can only be used by subclasses. It instantiates the private attributes with the given
      * parameters so that the instance methods of this class can be used via subclasses of this class.
      *
-     * @param index is an integer that serves as the index of this field in a baker game board
-     * @param abbreviation is the single letter String representation of this field
-     * @param rawMaterial is the raw material that can be harvested from this field
+     * @param index is an integer that serves as the index of this field in a baker game
+     * {@link edu.kit.informatik.baker.board.Board}
+     * @param abbreviation is the single letter String representation of this
+     * {@link edu.kit.informatik.baker.board.Field}
+     * @param rawMaterial is the raw material that can be harvested from this
+     * {@link edu.kit.informatik.baker.board.Field}
      */
     protected Field(int index, String abbreviation, RawMaterial rawMaterial) {
         this.index = index;
@@ -45,27 +49,28 @@ public abstract class Field {
     }
 
     /**
-     * This method provides the index of this field.
+     * This method provides the index of this {@link edu.kit.informatik.baker.board.Field}.
      *
-     * @return an integer that serves as the index of this field
+     * @return an integer that serves as the index of this {@link edu.kit.informatik.baker.board.Field}
      */
     protected int getIndex() {
         return this.index;
     }
 
     /**
-     * This method provides the raw material that can be extracted from this field.
+     * This method provides the raw material that can be extracted from this
+     * {@link edu.kit.informatik.baker.board.Field}.
      *
-     * @return the raw material that can be extracted from this field
+     * @return the raw material that can be extracted from this {@link edu.kit.informatik.baker.board.Field}
      */
     public RawMaterial getRawMaterial() {
         return this.rawMaterial;
     }
 
     /**
-     * This method provides the single letter representation of this field.
+     * This method provides the single letter representation of this {@link edu.kit.informatik.baker.board.Field}.
      *
-     * @return a single letter String that represents this field
+     * @return a single letter String that represents this {@link edu.kit.informatik.baker.board.Field}
      */
     public String getAbbreviation() {
         return this.abbreviation;
@@ -73,11 +78,13 @@ public abstract class Field {
 
     /**
      * This static method provides a Field object instantiated with the given parameters. If the given abbreviation is
-     * the abbreviation of the StartField, then the common index of StartFields is used instead of the given index.
+     * the abbreviation of the {@link edu.kit.informatik.baker.board.StartField}, then the common index of StartFields
+     * is used instead of the given index.
      *
      * @param index is an integer that serves as the index of this field in a baker game board
-     * @param abbreviation is the single letter String representation of this field
-     * @return a Field object instantiated with the given parameters
+     * @param abbreviation is the single letter String representation of this
+     * {@link edu.kit.informatik.baker.board.Field}
+     * @return a {@link edu.kit.informatik.baker.board.Field} object instantiated with the given parameters
      */
     protected static Field createField(int index, String abbreviation) {
         Field field;

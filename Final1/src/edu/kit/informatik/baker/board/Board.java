@@ -8,8 +8,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * This class represents a game board from a baker game. It encapsulates fields in it and provides some useful
- * operations on them.
+ * This class represents a game board from a baker game. It encapsulates {@link edu.kit.informatik.baker.board.Field}s
+ * in it and provides some useful operations on them.
  *
  * @author Tarik Polat
  * @version 1.0.0
@@ -30,9 +30,9 @@ public class Board {
     private final boolean boardValid;
 
     /**
-     * This constructor creates a Board object using the given string representation of a board and checks its
-     * validity. The validity of the board can be checked via isBoardValid(). If the board is not valid, the instance
-     * methods return null.
+     * This constructor creates a {@link edu.kit.informatik.baker.board.Board} object using the given string
+     * representation of a board and checks its validity. The validity of the board can be checked via
+     * {@link #isBoardValid()}. If the board is not valid, the instance methods return null.
      *
      * @param fieldString is the string representation of a baker game board
      */
@@ -158,9 +158,9 @@ public class Board {
     }
 
     /**
-     * This method provides the StartField of this board.
+     * This method provides the {@link edu.kit.informatik.baker.board.StartField} of this board.
      *
-     * @return the StartField of this board
+     * @return the {@link edu.kit.informatik.baker.board.StartField} of this board
      */
     public Field getStartField() {
         if (!this.boardValid) {
@@ -170,7 +170,7 @@ public class Board {
     }
 
     /**
-     * This method checks if the board is valid.
+     * This method checks if this {@link edu.kit.informatik.baker.board.Board} is valid.
      *
      * @return true if the board is valid, false otherwise
      */
@@ -179,12 +179,12 @@ public class Board {
     }
 
     /**
-     * This method provides the resulting field, if a player was to move forward the given times on the board from the
-     * given field.
+     * This method provides the resulting {@link edu.kit.informatik.baker.board.Field}, if a player was to move
+     * forward the given times on the board starting from the given {@link edu.kit.informatik.baker.board.Field}.
      *
-     * @param field is the initial Field on the board
-     * @param moves is the amount of forward moves
-     * @return the resulting Field after the moves
+     * @param field is the initial {@link edu.kit.informatik.baker.board.Field} on the board from where the move starts
+     * @param moves is the amount of forward moves on the {@link edu.kit.informatik.baker.board.Board}
+     * @return the resulting {@link edu.kit.informatik.baker.board.Field} after the moves
      */
     public Field getNextField(Field field, int moves) {
         if (!this.boardValid) {

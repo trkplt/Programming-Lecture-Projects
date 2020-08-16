@@ -5,6 +5,13 @@ import edu.kit.informatik.baker.ui.Main;
 import java.util.Comparator;
 import java.util.Random;
 
+/**
+ * This class serves as a comparator for {@link edu.kit.informatik.baker.product.Dish}es. The dishes are compared
+ * according to their profits (lesser is better).
+ *
+ * @author Tarik Polat
+ * @version 1.0.0
+ */
 public class DishComparator implements Comparator<Dish> {
 
     private static final int GREATER = Main.ONE;
