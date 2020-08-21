@@ -3,6 +3,8 @@ package edu.kit.informatik.wtrs.time;
 import edu.kit.informatik.wtrs.ui.ErrorMessage;
 import edu.kit.informatik.wtrs.ui.Main;
 
+import java.util.Objects;
+
 public class Date implements Comparable<Date> {
 
     private static final int LEAP_YEAR_REMAINDER = 0;
@@ -155,25 +157,38 @@ public class Date implements Comparable<Date> {
 
     @Override
     public int compareTo(Date otherDate) {
-        int comparison;
+        if (this.equals(otherDate)) {
+            return Main.COMPARE_NEUTRAL;
+        }
 
-        if (this == otherDate) {
-            comparison = Main.COMPARE_NEUTRAL;
-        } else if (this.getYear() < otherDate.getYear()) {
-            comparison = Main.COMPARE_PRIOR;
-        } else if (this.getYear() > otherDate.getYear()) {
-            comparison = Main.COMPARE_LATTER;
-        } else if (this.getMonth() < otherDate.getMonth()) {
-            comparison = Main.COMPARE_PRIOR;
-        } else if (this.getMonth() > otherDate.getMonth()) {
-            comparison = Main.COMPARE_LATTER;
-        } else if (this.getDay() < otherDate.getDay()) {
-            comparison = Main.COMPARE_PRIOR;
-        } else if (this.getDay() > otherDate.getDay()) {
-            comparison = Main.COMPARE_LATTER;
+        int comparison;
+        int yearComp = Integer.compare(this.year, otherDate.year);
+        int monthComp = Integer.compare(this.month, otherDate.month);
+
+        if (yearComp != Main.COMPARE_NEUTRAL) {
+            comparison = yearComp;
+        } else if (monthComp != Main.COMPARE_NEUTRAL) {
+            comparison = monthComp;
         } else {
-            comparison = Main.COMPARE_NEUTRAL;
+            comparison = Integer.compare(this.day, otherDate.day);
         }
         return comparison;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Date other = (Date) o;
+        return this.day == other.day && this.month == other.month && this.year == other.year;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(day, month, year);
     }
 }

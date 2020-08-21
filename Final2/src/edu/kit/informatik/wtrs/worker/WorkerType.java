@@ -24,11 +24,11 @@ public enum WorkerType {
         protected WorkingHoursChecker getWorkingHoursChecker() {
             return null;
         }
-    },
+    };
 
-    NIGHT,
+    /*NIGHT,
     PRODUCTION,
-    NIGHTPRODUCTION;
+    NIGHTPRODUCTION;*/
 
     protected WorkTimeRegulator getRegulator() {
         return new WorkTimeRegulator(this.getDayChecker(), this.getPauseChecker(), this.getAfterWorkChecker(),

@@ -1,6 +1,7 @@
 package edu.kit.informatik.wtrs.time;
 
 import edu.kit.informatik.wtrs.ui.ErrorMessage;
+import edu.kit.informatik.wtrs.ui.Main;
 
 public class ExactTime implements Comparable<ExactTime> {
 
@@ -12,7 +13,8 @@ public class ExactTime implements Comparable<ExactTime> {
     private final Date date;
     private final Time time;
 
-    ExactTime(int year, int month, int day, int hour, int minute) {
+    //TODO: ACCESS MODIFIER
+    public ExactTime(int year, int month, int day, int hour, int minute) {
         this.date = new Date(year, month, day);
         this.time = new Time(hour, minute);
     }
@@ -50,9 +52,26 @@ public class ExactTime implements Comparable<ExactTime> {
         return this.time.getErrorMessage();
     }
 
-    //TODO: ACCESS MODIFIER
-    Duration getDurationTo(ExactTime otherTime) {
+    private Duration getDurationToSameDay(ExactTime otherTime) {
+        int minutes = Time.minutesBetween(this.time, otherTime.time) + Time.CALCULATION_CORRECTIVE_MARGIN;
+        return new Duration(minutes);
+    }
 
+    private Duration getDurationToDifferentDay(ExactTime otherTime) {
+        int days = Date.daysBetween(this.date, otherTime.date);
+        int minutes =  this.time.minutesTillNewDay() + Time.CALCULATION_CORRECTIVE_MARGIN
+                + days * Time.MINUTES_OF_DAY
+                + otherTime.time.minutesFromDayStart();
+        return new Duration(minutes);
+    }
+
+    //TODO: ACCESS MODIFIER
+    public Duration getDurationTo(ExactTime otherTime) {
+        if (this.date.compareTo(otherTime.date) == Main.COMPARE_NEUTRAL) {
+            return this.getDurationToSameDay(otherTime);
+        } else {
+            return this.getDurationToDifferentDay(otherTime);
+        }
     }
 
     @Override
@@ -62,29 +81,40 @@ public class ExactTime implements Comparable<ExactTime> {
 
     @Override
     public int compareTo(ExactTime otherExactTime) {
-        int former = -1;
-        int neutral = 0;
-        int latter = 1;
-        int comparison;
-
-        if (this == otherExactTime) {
-            return neutral;
+        if (this.equals(otherExactTime)) {
+            return Main.COMPARE_NEUTRAL;
         }
 
-        int dateComparison = this.getDate().compareTo(otherExactTime.getDate());
-        int timeComparison = this.getTime().compareTo(otherExactTime.getTime());
+        int comparison;
+        int dateComp = this.date.compareTo(otherExactTime.date);
 
-        if (dateComparison < neutral) {
-            comparison = former;
-        } else if (dateComparison > neutral) {
-            comparison = latter;
-        } else if (timeComparison < neutral) {
-            comparison = former;
-        } else if (timeComparison > neutral) {
-            comparison = latter;
+        if (dateComp != Main.COMPARE_NEUTRAL) {
+            comparison = dateComp;
         } else {
-            comparison = neutral;
+            comparison = this.time.compareTo(otherExactTime.time);
         }
         return comparison;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ExactTime other = (ExactTime) o;
+        return this.date.equals(other.date) && this.time.equals(other.time);
+    }
+
+    @Override
+    public int hashCode() {
+        int prime = 31;
+        int hashCode = 1;
+
+        hashCode = prime * hashCode + this.date.hashCode();
+        hashCode = prime * hashCode + this.time.hashCode();
+        return hashCode;
     }
 }

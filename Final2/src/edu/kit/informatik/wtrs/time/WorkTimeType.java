@@ -10,7 +10,10 @@ public enum WorkTimeType {
     },
 
     WITHOUT_PAUSE() {
-
+        @Override
+        Duration getPureWorkTime(ExactTime workTimeStart, ExactTime workTimeEnd, ExactTime pauseStart, ExactTime pauseEnd) {
+            return null;
+        }
     };
 
     //TODO: ACCESS MODIFIER

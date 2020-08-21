@@ -1,5 +1,7 @@
 package edu.kit.informatik.wtrs.ui;
 
+import edu.kit.informatik.wtrs.time.ExactTime;
+
 public class Main {
 
     /**
@@ -54,4 +56,11 @@ public class Main {
     public static final int COMPARE_LATTER = 1;
 
     public static final int COUNTER_START_ZERO = 0;
+
+    public static void main(String[] args) {
+        ExactTime first = new ExactTime(2020, 6, 12, 17, 0);
+        ExactTime second = new ExactTime(2020, 8, 21, 19, 0);
+        System.out.println(first.getDurationTo(second));
+        System.out.println(second.getDurationTo(first));
+    }
 }
