@@ -19,12 +19,12 @@ public class ExactTime implements Comparable<ExactTime> {
         this.time = new Time(hour, minute);
     }
 
-    private Date getDate() {
-        return this.date;
+    protected int getHour() {
+        return this.time.getHour();
     }
 
-    private Time getTime() {
-        return this.time;
+    protected int getMinute() {
+        return this.time.getMinute();
     }
 
     //TODO: ACCESS MODIFIER
@@ -52,25 +52,28 @@ public class ExactTime implements Comparable<ExactTime> {
         return this.time.getErrorMessage();
     }
 
-    private Duration getDurationToSameDay(ExactTime otherTime) {
-        int minutes = Time.minutesBetween(this.time, otherTime.time) + Time.CALCULATION_CORRECTIVE_MARGIN;
-        return new Duration(minutes);
+    private Duration durationToSameDay(ExactTime otherTime) {
+        return new Duration(this.time.minutesTo(otherTime.time));
     }
 
-    private Duration getDurationToDifferentDay(ExactTime otherTime) {
+    private Duration durationToDifferentDay(ExactTime otherTime) {
         int days = Date.daysBetween(this.date, otherTime.date);
-        int minutes =  this.time.minutesTillNewDay() + Time.CALCULATION_CORRECTIVE_MARGIN
+        int minutes =  this.time.minutesToNewDay() + Time.CALCULATION_CORRECTIVE_MARGIN
                 + days * Time.MINUTES_OF_DAY
                 + otherTime.time.minutesFromDayStart();
         return new Duration(minutes);
     }
 
     //TODO: ACCESS MODIFIER
-    public Duration getDurationTo(ExactTime otherTime) {
+    public Duration durationTo(ExactTime otherTime) {
+        if (this.compareTo(otherTime) > Main.COMPARE_NEUTRAL) {
+            return otherTime.durationTo(this);
+        }
+
         if (this.date.compareTo(otherTime.date) == Main.COMPARE_NEUTRAL) {
-            return this.getDurationToSameDay(otherTime);
+            return this.durationToSameDay(otherTime);
         } else {
-            return this.getDurationToDifferentDay(otherTime);
+            return this.durationToDifferentDay(otherTime);
         }
     }
 

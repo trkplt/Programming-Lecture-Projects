@@ -1,6 +1,5 @@
 package edu.kit.informatik.wtrs.time;
 
-import edu.kit.informatik.wtrs.ui.ErrorMessage;
 import edu.kit.informatik.wtrs.ui.Main;
 
 import java.util.Objects;
@@ -12,9 +11,9 @@ public class Time implements Comparable<Time> {
     private static final int MIN_MINUTE = 0;
     private static final int FIRST_DOUBLE_DIGIT_HOUR_MINUTE = 10;
     private static final String FILLER = "0";
-    private static final String HOUR_PATTERN = "(0[0-9]|1[0-9]|2[0-3])";
-    private static final String TWENTY_FOUR_HOUR_PATTERN = "(0[0-9]|1[0-9]|2[0-4])";
-    private static final String MINUTE_PATTERN = "(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])";
+    private static final String HOUR_PATTERN = "([0-1][0-9]|2[0-3])"; //"(0[0-9]|1[0-9]|2[0-3])"
+    private static final String TWENTY_FOUR_HOUR_PATTERN = "([0-1][0-9]|2[0-4])"; //"(0[0-9]|1[0-9]|2[0-4])"
+    private static final String MINUTE_PATTERN = "([0-5][0-9])"; //"(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])"
 
     protected static final int CALCULATION_CORRECTIVE_MARGIN = 1;
     protected static final int MAX_MINUTE = 59;
@@ -27,28 +26,19 @@ public class Time implements Comparable<Time> {
 
     private final int hour;
     private final int minute;
-    private final boolean valid;
-    private final ErrorMessage errorMessage;
 
     protected Time(int hour, int minute) {
-        //TODO: VALIDITY (WITH PATTERN) CHECK IN COMMAND
+        //TODO: ALL VALIDITY CHECKS IN COMMAND
         this.hour = hour;
         this.minute = minute;
-
-        if (hour > MAX_HOUR && minute > MIN_MINUTE) {
-            this.valid = false;
-            this.errorMessage = ErrorMessage.ILLEGAL_TIME;
-        } else {
-            this.valid = true;
-            this.errorMessage = null;
-        }
     }
 
     private static int minutesBetweenSameHour(Time first, Time second) {
-        return MAX_MINUTE
+        int minutes = MAX_MINUTE
                 - (first.minutesPrecedingInHour()
                 + second.minutesProceedingInHour()
                 + CALCULATION_CORRECTIVE_MARGIN);
+        return Math.max(minutes, MIN_MINUTE);
     }
 
     private static int minutesBetweenDifferentHours(Time first, Time second) {
@@ -60,7 +50,7 @@ public class Time implements Comparable<Time> {
         return first.minutesProceedingInHour() + minutes + second.minutesPrecedingInHour();
     }
 
-    protected static int minutesBetween(Time first, Time second) {
+    private static int minutesBetween(Time first, Time second) {
         if (first.compareTo(second) > Main.COMPARE_NEUTRAL) {
             return minutesBetween(second, first);
         }
@@ -72,24 +62,20 @@ public class Time implements Comparable<Time> {
         }
     }
 
-    protected int minutesTillNewDay() {
-        Time lastMinute = new Time(MAX_HOUR, MAX_MINUTE);
-        int minutes = minutesBetween(this, lastMinute);
-
-        if (!this.equals(lastMinute)) {
+    protected int minutesTo(Time other) {
+        int minutes = minutesBetween(this, other);
+        if (!this.equals(other)) {
             minutes += CALCULATION_CORRECTIVE_MARGIN;
         }
         return minutes;
     }
 
-    protected int minutesFromDayStart() {
-        Time firstMinute = new Time(MIN_HOUR, MIN_MINUTE);
-        int minutes = minutesBetween(this, firstMinute);
+    protected int minutesToNewDay() {
+        return this.minutesTo(new Time(MAX_HOUR, MAX_MINUTE));
+    }
 
-        if (!this.equals(firstMinute)) {
-            minutes += CALCULATION_CORRECTIVE_MARGIN;
-        }
-        return minutes;
+    protected int minutesFromDayStart() {
+        return this.minutesTo(new Time(MIN_HOUR, MIN_MINUTE));
     }
 
     private int minutesPrecedingInHour() {
@@ -100,20 +86,12 @@ public class Time implements Comparable<Time> {
         return MAX_MINUTE - this.minute;
     }
 
-    private int getHour() {
+    protected int getHour() {
         return this.hour;
     }
 
-    private int getMinute() {
+    protected int getMinute() {
         return this.minute;
-    }
-
-    protected boolean isValid() {
-        return this.valid;
-    }
-
-    protected ErrorMessage getErrorMessage() {
-        return this.errorMessage;
     }
 
     /*protected Duration getDurationTo() {

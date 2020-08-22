@@ -1,24 +1,34 @@
 package edu.kit.informatik.wtrs.regulator;
 
+import edu.kit.informatik.wtrs.time.ExactTime;
 import edu.kit.informatik.wtrs.time.WorkTime;
-import edu.kit.informatik.wtrs.time.WorkTimeComparator;
+import edu.kit.informatik.wtrs.ui.ErrorMessage;
 
 import java.util.TreeSet;
 
-public class WorkTimeRegulator {
+public abstract class WorkTimeRegulator {
 
     private final TreeSet<WorkTime> workTimes;
-    private final DayChecker dayChecker;
-    private final PauseChecker pauseChecker;
-    private final AfterWorkChecker afterWorkChecker;
-    private final WorkingHoursChecker workingHoursChecker;
 
-    public WorkTimeRegulator(DayChecker dayChecker, PauseChecker pauseChecker, AfterWorkChecker afterWorkChecker,
-                             WorkingHoursChecker workingHoursChecker) {
-        this.workTimes = new TreeSet<>(new WorkTimeComparator());
-        this.dayChecker = dayChecker;
-        this.pauseChecker = pauseChecker;
-        this.afterWorkChecker = afterWorkChecker;
-        this.workingHoursChecker = workingHoursChecker;
+    protected WorkTimeRegulator() {
+        this.workTimes = new TreeSet<>();
+    }
+
+    public abstract ErrorMessage addNewWorkTime(WorkTime workTime);
+
+    public boolean isAssignedAt(ExactTime time) {
+        for (WorkTime workTime : this.workTimes) {
+            if (workTime.contains(time)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public WorkTime[] workTimesToArray() {
+        WorkTime[] tempArray = new WorkTime[0];
+        WorkTime[] workTimesArray = this.workTimes.toArray(tempArray);
+
+        return workTimesArray.length != 0 ? workTimesArray : null;
     }
 }

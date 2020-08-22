@@ -99,7 +99,7 @@ public class Date implements Comparable<Date> {
     private static int daysBetweenSameYear(Date first, Date second) {
         return daysInYear(first.year)
                 - (first.daysPrecedingInYear() + Time.CALCULATION_CORRECTIVE_MARGIN
-                + second.daysPrecedingInYear() + Time.CALCULATION_CORRECTIVE_MARGIN);
+                + second.daysProceedingInYear() + Time.CALCULATION_CORRECTIVE_MARGIN);
     }
 
     private static int daysBetweenDifferentYears(Date first, Date second) {

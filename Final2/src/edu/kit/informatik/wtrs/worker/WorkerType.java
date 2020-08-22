@@ -2,41 +2,39 @@ package edu.kit.informatik.wtrs.worker;
 
 import edu.kit.informatik.wtrs.regulator.*;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 public enum WorkerType {
 
-    REGULAR() {
-        @Override
-        protected DayChecker getDayChecker() {
-            return null;
+    REGULAR(new AWorkTimeRegulator()),
+
+    NIGHT(new NWorkTimeRegulator()),
+
+    PRODUCTION(new PWorkTimeRegulator()),
+
+    NIGHTPRODUCTION(new NPWorkTimeRegulator());
+
+    private final Constructor<? extends WorkTimeRegulator> regulatorConstructor;
+
+    WorkerType(WorkTimeRegulator regulator) {
+        Constructor<? extends WorkTimeRegulator> tempRegulator;
+        try {
+            tempRegulator = regulator.getClass().getConstructor();
+        } catch (NoSuchMethodException e) {
+            tempRegulator = null;
         }
-
-        @Override
-        protected PauseChecker getPauseChecker() {
-            return null;
-        }
-
-        @Override
-        protected AfterWorkChecker getAfterWorkChecker() {
-            return null;
-        }
-
-        @Override
-        protected WorkingHoursChecker getWorkingHoursChecker() {
-            return null;
-        }
-    };
-
-    /*NIGHT,
-    PRODUCTION,
-    NIGHTPRODUCTION;*/
-
-    protected WorkTimeRegulator getRegulator() {
-        return new WorkTimeRegulator(this.getDayChecker(), this.getPauseChecker(), this.getAfterWorkChecker(),
-                this.getWorkingHoursChecker());
+        this.regulatorConstructor = tempRegulator;
     }
 
-    protected abstract DayChecker getDayChecker();
-    protected abstract PauseChecker getPauseChecker();
-    protected abstract AfterWorkChecker getAfterWorkChecker();
-    protected abstract WorkingHoursChecker getWorkingHoursChecker();
+    protected WorkTimeRegulator workTimeRegulatorFactory() {
+        WorkTimeRegulator newInstance;
+
+        try {
+            newInstance = this.regulatorConstructor.newInstance();
+        } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            newInstance = null;
+        }
+        return newInstance;
+    }
 }
