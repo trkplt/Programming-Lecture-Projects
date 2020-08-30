@@ -9,7 +9,7 @@ public class PauseTime extends Interval implements Comparable<Interval> {
     }
 
     @Override
-    public int pureDurationInMinutesBefore(Date date) {
+    public long pureDurationInMinutesBefore(Date date) {
         return this.minutesBefore(date);
     }
 }

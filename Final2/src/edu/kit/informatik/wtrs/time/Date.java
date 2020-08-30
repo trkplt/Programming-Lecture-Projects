@@ -276,7 +276,7 @@ public class Date implements Comparable<Date> {
         return new Date(newYear, newMonth, newDay).periodBorder(newDuration, isDurationWeeks);
     }
 
-    public Date periodBorder(int duration, boolean isDurationWeeks) {
+    protected Date periodBorder(int duration, boolean isDurationWeeks) {
         if (isDurationWeeks) {
             return periodBorderWeeks(duration);
         }

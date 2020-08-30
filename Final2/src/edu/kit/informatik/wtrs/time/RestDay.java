@@ -8,4 +8,9 @@ public class RestDay extends Interval implements Comparable<Interval> {
         super(start, end);
         this.causeWorkTime = causeWorkTime;
     }
+
+    @Override
+    public long pureDurationInMinutesBefore(Date date) {
+        return this.minutesBefore(date);
+    }
 }

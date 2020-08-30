@@ -15,7 +15,7 @@ public abstract class Interval implements Comparable<Interval> {
         this.end = end;
     }
 
-    public abstract int pureDurationInMinutesBefore(Date date);
+    public abstract long pureDurationInMinutesBefore(Date date);
 
     public ExactTime getStart() {
         return this.start;
@@ -25,11 +25,11 @@ public abstract class Interval implements Comparable<Interval> {
         return this.end;
     }
 
-    protected Duration duration() {
+    public Duration duration() {
         return this.start.durationTo(end);
     }
 
-    protected int minutesBefore(Date date) {
+    protected long minutesBefore(Date date) {
         if (this.start.getDate().compareTo(date) >= Main.COMPARE_NEUTRAL) {
             return Main.COMPARE_NEUTRAL;
         }

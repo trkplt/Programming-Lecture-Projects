@@ -13,7 +13,10 @@ public enum ErrorMessage {
     PAUSE_NEEDED(ERROR_INIT.message + "the given work time contains interval(s) exceeding 6 hours without a pause!"),
     MIN_PAUSE_NOT_PROVIDED(ERROR_INIT.message + "the given pause time does not meet the minimum conditions!"),
     WORK_TIME_INTERSECTS_ANOTHER(ERROR_INIT.message + "the given work time intersects with an already registered "
-            + "work time!");
+            + "work time!"),
+    MINIMUM_REST_TIME(ERROR_INIT.message + "the rest time after work of the given work time is less than 10 hours!"),
+    REST_TIME_CONFLICT(ERROR_INIT.message + "extended rest times do not cover all the reduced rest times if the "
+            + "given work time is assigned to the given worker!");
 
     private final String message;
 

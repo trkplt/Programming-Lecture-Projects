@@ -16,9 +16,9 @@ public class Duration implements Comparable<Duration> {
     }
 
     //TODO: ACCESS MODIFIER
-    Duration(int minutes) {
-        this(minutes / (Time.MAX_MINUTE + Time.CALCULATION_CORRECTIVE_MARGIN),
-                minutes % (Time.MAX_MINUTE + Time.CALCULATION_CORRECTIVE_MARGIN));
+    Duration(long minutes) {
+        this((int) (minutes / (Time.MAX_MINUTE + Time.CALCULATION_CORRECTIVE_MARGIN)),
+                (int) (minutes % (Time.MAX_MINUTE + Time.CALCULATION_CORRECTIVE_MARGIN)));
     }
 
     protected static Duration differenceBetween(Duration first, Duration second) {
@@ -34,11 +34,11 @@ public class Duration implements Comparable<Duration> {
             return differenceBetween(second, first);
         }
 
-        int newMinutes = first.toMinutes() - second.toMinutes();
+        long newMinutes = first.toMinutes() - second.toMinutes();
         return new Duration(newMinutes);
     }
 
-    public int toMinutes() {
+    public long toMinutes() {
         return this.hours * (Time.MAX_MINUTE + Time.CALCULATION_CORRECTIVE_MARGIN) + this.minutes;
     }
 

@@ -60,7 +60,7 @@ public class ExactTime implements Comparable<ExactTime> {
         return this.time.getMinute();
     }
 
-    protected Date getDate() {
+    public Date getDate() {
         return this.date;
     }
 
@@ -112,6 +112,10 @@ public class ExactTime implements Comparable<ExactTime> {
         } else {
             return this.durationToDifferentDay(otherTime);
         }
+    }
+
+    public Date periodBorder(int duration, boolean isDurationWeeks) {
+        return this.date.periodBorder(duration, isDurationWeeks);
     }
 
     @Override

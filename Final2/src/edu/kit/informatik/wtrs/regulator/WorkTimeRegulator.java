@@ -1,12 +1,11 @@
 package edu.kit.informatik.wtrs.regulator;
 
 import edu.kit.informatik.wtrs.time.*;
+import edu.kit.informatik.wtrs.time.Date;
 import edu.kit.informatik.wtrs.ui.ErrorMessage;
 import edu.kit.informatik.wtrs.ui.Main;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.TreeSet;
+import java.util.*;
 
 public abstract class WorkTimeRegulator {
 
@@ -20,6 +19,11 @@ public abstract class WorkTimeRegulator {
     private static final int MIN_OBLIGATORY_PAUSE_TIME = 30;
     //in minutes
     private static final int MIN_EXTENDED_PAUSE_TIME = 45;
+    private static final int FOUR_WEEKS_PERIOD = 4;
+    private static final int ONE_MONTH_PERIOD = 1;
+    private static final int TWENTY_FOUR_WEEKS_PERIOD = 24;
+    private static final int SIX_MONTHS_PERIOD = 6;
+    private static final int BACKWARD_PERIOD_MULTIPLIER = -1;
 
     private final TreeSet<WorkTime> workTimes;
     private final TreeSet<RestTime> restTimes;
@@ -32,15 +36,15 @@ public abstract class WorkTimeRegulator {
     }
 
     private static ErrorMessage checkPauseValidity(WorkTime workTime) {
-        Collection<Integer> workDurations = workTime.workTimeBlocksInMinutes();
-        for (Integer duration : workDurations) {
+        Collection<Long> workDurations = workTime.workTimeBlocksInMinutes();
+        for (Long duration : workDurations) {
             if (duration > MAX_WORK_TIME_WITHOUT_PAUSE) {
                 return ErrorMessage.PAUSE_NEEDED;
             }
         }
 
         int minNeededPause;
-        int pureWorkDuration = workTime.pureWorkInMinutes();
+        long pureWorkDuration = workTime.pureWorkInMinutes();
 
         if (pureWorkDuration <= MAX_WORK_TIME_WITHOUT_PAUSE) {
             minNeededPause = MIN_PAUSE_TIME;
@@ -131,8 +135,8 @@ public abstract class WorkTimeRegulator {
         }
 
         Iterator<? extends Interval> iterator = setToExamine.iterator();
-        int intervalTimeSum = Main.COUNTER_START_ZERO;
-        int intervalCounter = Main.COUNTER_START_ZERO;
+        long intervalTimeSum = Main.COUNTER_START_ZERO;
+        long intervalCounter = Main.COUNTER_START_ZERO;
 
         while (iterator.hasNext()) {
             Interval currentInterval = iterator.next();
@@ -180,7 +184,7 @@ public abstract class WorkTimeRegulator {
     }
 
     private RestTime getRestTimeOf(WorkTime workTime) {
-        WorkTime nextWorkTime = null;
+        WorkTime nextWorkTime = /*null;
         Iterator<WorkTime> iterator = this.workTimes.iterator();
 
         while (iterator.hasNext()) {
@@ -194,6 +198,8 @@ public abstract class WorkTimeRegulator {
             }
         }
 
+        */this.workTimes.higher(workTime);
+
         RestTime restTime;
         if (nextWorkTime == null) {
             restTime = new RestTime(workTime.getEnd(), ExactTime.lastMomentPossible(), workTime);
@@ -204,13 +210,237 @@ public abstract class WorkTimeRegulator {
         return restTime;
     }
 
-    private double averageRestTimeIn(WorkTime workTime, int duration, boolean isDurationWeeks) {
-        RestTime restTimeToAdd = this.getRestTimeOf(workTime);
+    //calculates the average including restTime of given workTime, which is given as restTimeToAdd
+    private double averageRestTimeIn(WorkTime workTime, RestTime restTimeToAdd,
+                                     int duration, boolean isDurationWeeks) {
         return averageIn(this.restTimes, workTime, restTimeToAdd, duration, isDurationWeeks);
     }
 
-    private ErrorMessage checkRestTimeValidity() {
+    private static boolean withinGivenPeriodBackward(int period, boolean isDurationWeeks,
+                                              ExactTime origin, ExactTime timeToExamine) {
+        Date exclusivePeriodDate = origin.periodBorder(period * BACKWARD_PERIOD_MULTIPLIER, isDurationWeeks);
+        return exclusivePeriodDate.compareTo(timeToExamine.getDate()) < Main.COMPARE_NEUTRAL
+                && timeToExamine.getDate().compareTo(origin.getDate()) <= Main.COMPARE_NEUTRAL;
+    }
 
+    private static boolean withinGivenPeriodForward(int period, boolean isDurationWeeks,
+                                             ExactTime origin, ExactTime timeToExamine) {
+        Date exclusivePeriodDate = origin.periodBorder(period, isDurationWeeks);
+        return origin.getDate().compareTo(timeToExamine.getDate()) <= Main.COMPARE_NEUTRAL
+                && timeToExamine.getDate().compareTo(exclusivePeriodDate) < Main.COMPARE_NEUTRAL;
+    }
+
+    private static boolean withinGivenPeriod(int period, ExactTime origin, ExactTime timeToExamine) {
+        if (origin.getDate().equals(timeToExamine.getDate())) {
+            return true;
+        }
+
+        boolean isDurationWeeks = false;
+        int equivalentPeriod = Main.COUNTER_START_ZERO;
+
+        if (period == FOUR_WEEKS_PERIOD) {
+            isDurationWeeks = true;
+            equivalentPeriod = ONE_MONTH_PERIOD;
+        } else if (period == TWENTY_FOUR_WEEKS_PERIOD) {
+            isDurationWeeks = true;
+            equivalentPeriod = SIX_MONTHS_PERIOD;
+        } else if (period == ONE_MONTH_PERIOD) {
+            equivalentPeriod = FOUR_WEEKS_PERIOD;
+        } else if (period == SIX_MONTHS_PERIOD) {
+            equivalentPeriod = TWENTY_FOUR_WEEKS_PERIOD;
+        }
+
+        if (timeToExamine.compareTo(origin) < Main.COMPARE_NEUTRAL) {
+            return withinGivenPeriodBackward(period, isDurationWeeks, origin, timeToExamine)
+                    || withinGivenPeriodBackward(equivalentPeriod, !isDurationWeeks, origin, timeToExamine);
+        } else {
+            return withinGivenPeriodForward(period, isDurationWeeks, origin, timeToExamine)
+                    || withinGivenPeriodBackward(equivalentPeriod, !isDurationWeeks, origin, timeToExamine);
+        }
+    }
+
+    private boolean newExtendedArrangementsPossible(WorkTime workTime, RestTime mandatoryToFindExtended,
+                                                    int numberOfNeededArrangements, RestTime newestRestTime) {
+        int counter = Main.COUNTER_START_ZERO;
+
+        if (newestRestTime.isExtended()) {
+            ++counter;
+        }
+
+        for (RestTime restTime : this.restTimes) {
+            ExactTime restCauseStart = restTime.getCauseWorkTime().getStart();
+
+            if (restTime.isExtended() && !restTime.hasBeneficiary()
+                    && ((counter > Main.COUNTER_START_ZERO
+                    && withinGivenPeriod(ONE_MONTH_PERIOD, workTime.getStart(), restCauseStart))
+                    || (counter == Main.COUNTER_START_ZERO
+                    && withinGivenPeriod(ONE_MONTH_PERIOD, mandatoryToFindExtended.getStart(), restCauseStart)))) {
+                ++counter;
+            }
+
+            if (counter >= numberOfNeededArrangements) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean arrangeNewExtendedFor(RestTime beneficiary, RestTime newestRestTime) {
+        if (newestRestTime.isExtended()) {
+            newestRestTime.addExtendBeneficiary(beneficiary);
+            return true;
+        }
+
+        RestTime extended = null;
+
+        for (RestTime restTime : restTimes) {
+            if (restTime.isExtended() && !restTime.hasBeneficiary()) {
+                extended = restTime;
+                break;
+            }
+        }
+
+        if (extended != null) {
+            extended.addExtendBeneficiary(beneficiary);
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean arrangeNewExtendedFor(RestTime first, RestTime second, RestTime newestRestTime) {
+        int neededExtendedCount = 2;
+        List<RestTime> extendedRestTimes = new ArrayList<>();
+
+        if (newestRestTime.isExtended()) {
+            extendedRestTimes.add(newestRestTime);
+        }
+
+        for (RestTime restTime : restTimes) {
+            if (restTime.isExtended() && !restTime.hasBeneficiary()) {
+                extendedRestTimes.add(restTime);
+            }
+
+            if (extendedRestTimes.size() == neededExtendedCount) {
+                break;
+            }
+        }
+
+        if (extendedRestTimes.size() >= neededExtendedCount) {
+            int firstIndex = 1;
+            int secondIndex = 2;
+
+            extendedRestTimes.get(firstIndex).addExtendBeneficiary(first);
+            extendedRestTimes.get(secondIndex).addExtendBeneficiary(second);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private ErrorMessage restTimeArrangementsPossible(WorkTime workTime, RestTime currentRestTime) {
+        if (!currentRestTime.meetsMinimum()) {
+            return ErrorMessage.MINIMUM_REST_TIME;
+        }
+
+        RestTime intersectedRestTime = null;
+        for (Interval restTime : restTimes) {
+            if (workTime.equals(restTime)) {
+                intersectedRestTime = (RestTime) restTime;
+                break;
+            }
+        }
+
+        boolean newArrangementsPossible = false;
+
+        RestTime intRestBeneficiary = intersectedRestTime == null ? null : intersectedRestTime.getExtendBeneficiary();
+        boolean intRestHasBeneficiary = intersectedRestTime != null && intersectedRestTime.hasBeneficiary();
+        RestTime newRestForIntersect = intersectedRestTime == null ? null
+                : intersectedRestTime.newRestWithNewEnd(workTime.getEnd());
+        boolean newRestReduced = newRestForIntersect != null && newRestForIntersect.isReduced();
+        boolean newRestExtended = newRestForIntersect != null && newRestForIntersect.isExtended();
+        boolean newRestNormal = !newRestReduced && !newRestExtended;
+        int numberOfNeededArrangements;
+
+        if (newRestReduced && intRestHasBeneficiary) {
+            numberOfNeededArrangements = 2;
+            newArrangementsPossible
+                    = this.newExtendedArrangementsPossible(workTime, intRestBeneficiary,
+                    numberOfNeededArrangements, currentRestTime);
+        } else if (newRestReduced) {
+            numberOfNeededArrangements = 1;
+            newArrangementsPossible
+                    = this.newExtendedArrangementsPossible(workTime, newRestForIntersect,
+                    numberOfNeededArrangements, currentRestTime);
+        } else if (newRestNormal && intRestHasBeneficiary) {
+            numberOfNeededArrangements = 1;
+            newArrangementsPossible
+                    = this.newExtendedArrangementsPossible(workTime, intRestBeneficiary,
+                    numberOfNeededArrangements, currentRestTime);
+        } else {
+            newArrangementsPossible = true;
+        }
+
+        if (newArrangementsPossible) {
+            return null;
+        } else {
+            return ErrorMessage.REST_TIME_CONFLICT;
+        }
+    }
+
+    private void arrangeRestTime(WorkTime workTime, RestTime currentRestTime) {
+        RestTime intersectedRestTime = null;
+        for (Interval restTime : restTimes) {
+            if (workTime.equals(restTime)) {
+                intersectedRestTime = (RestTime) restTime;
+                break;
+            }
+        }
+
+        boolean intRestHasBeneficiary = intersectedRestTime.hasBeneficiary();
+        RestTime intRestBeneficiary = intersectedRestTime.getExtendBeneficiary();
+
+        RestTime newRestForIntersect = intersectedRestTime.newRestWithNewEnd(workTime.getEnd());
+        boolean newRestReduced = newRestForIntersect.isReduced();
+        boolean newRestExtended = newRestForIntersect.isExtended();
+        boolean newRestNormal = !newRestReduced && !newRestExtended;
+
+        boolean arrangementsMade;
+
+        if (newRestReduced && intRestHasBeneficiary) {
+            arrangementsMade = this.arrangeNewExtendedFor(intRestBeneficiary, newRestForIntersect, currentRestTime);
+        } else if (newRestReduced) {
+            arrangementsMade = this.arrangeNewExtendedFor(newRestForIntersect, currentRestTime);
+        } else if (newRestNormal && intRestHasBeneficiary) {
+            arrangementsMade = this.arrangeNewExtendedFor(intRestBeneficiary, currentRestTime);
+        } else if (newRestNormal) {
+            arrangementsMade = true;
+        } else {
+            arrangementsMade = true;
+        }
+
+        if (arrangementsMade) {
+            this.restTimes.remove(intersectedRestTime);
+            this.restTimes.add(newRestForIntersect);
+            this.restTimes.add(currentRestTime);
+        }
+    }
+
+    private ErrorMessage arrangeRestTimeAndDay(WorkTime workTime) {
+        RestTime currentRestTime = this.getRestTimeOf(workTime);
+        ErrorMessage restTimeError = this.restTimeArrangementsPossible(workTime, currentRestTime);
+        ErrorMessage restDayError = this.restDayArrangementsPossible();
+
+        if (restTimeError != null) {
+            return restTimeError;
+        } else if (restDayError != null) {
+            return restDayError;
+        } else {
+            this.arrangeRestTime(workTime, currentRestTime);
+            this.arrangeRestDay();
+        }
     }
 
     public ErrorMessage addNewWorkTime(WorkTime workTime) {
@@ -229,7 +459,7 @@ public abstract class WorkTimeRegulator {
             return errorMessage;
         }
 
-        errorMessage = this.checkRestTimeValidity();
+        errorMessage = this.arrangeRestTimeAndDay(workTime);
         if (errorMessage != null) {
             return errorMessage;
         }
