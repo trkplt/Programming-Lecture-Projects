@@ -38,7 +38,7 @@ public class Duration implements Comparable<Duration> {
         return new Duration(newMinutes);
     }
 
-    private int toMinutes() {
+    public int toMinutes() {
         return this.hours * (Time.MAX_MINUTE + Time.CALCULATION_CORRECTIVE_MARGIN) + this.minutes;
     }
 

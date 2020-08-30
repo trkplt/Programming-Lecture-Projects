@@ -13,18 +13,18 @@ public enum WorkerType {
 
     PRODUCTION(new PWorkTimeRegulator()),
 
-    NIGHTPRODUCTION(new NPWorkTimeRegulator());
+    NIGHT_PRODUCTION(new NPWorkTimeRegulator());
 
     private final Constructor<? extends WorkTimeRegulator> regulatorConstructor;
 
     WorkerType(WorkTimeRegulator regulator) {
-        Constructor<? extends WorkTimeRegulator> tempRegulator;
+        Constructor<? extends WorkTimeRegulator> tempConstructor;
         try {
-            tempRegulator = regulator.getClass().getConstructor();
+            tempConstructor = regulator.getClass().getConstructor();
         } catch (NoSuchMethodException e) {
-            tempRegulator = null;
+            tempConstructor = null;
         }
-        this.regulatorConstructor = tempRegulator;
+        this.regulatorConstructor = tempConstructor;
     }
 
     protected WorkTimeRegulator workTimeRegulatorFactory() {

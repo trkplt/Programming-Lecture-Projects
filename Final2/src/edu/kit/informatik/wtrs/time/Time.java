@@ -6,9 +6,7 @@ import java.util.Objects;
 
 public class Time implements Comparable<Time> {
 
-    private static final int MIN_HOUR = 0;
     private static final int MAX_HOUR = 23;
-    private static final int MIN_MINUTE = 0;
     private static final int FIRST_DOUBLE_DIGIT_HOUR_MINUTE = 10;
     private static final String FILLER = "0";
     private static final String HOUR_PATTERN = "([0-1][0-9]|2[0-3])"; //"(0[0-9]|1[0-9]|2[0-3])"
@@ -16,6 +14,8 @@ public class Time implements Comparable<Time> {
     private static final String MINUTE_PATTERN = "([0-5][0-9])"; //"(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])"
 
     protected static final int CALCULATION_CORRECTIVE_MARGIN = 1;
+    protected static final int MIN_HOUR = 0;
+    protected static final int MIN_MINUTE = 0;
     protected static final int MAX_MINUTE = 59;
     protected static final String SEPARATOR = ":";
 
@@ -60,6 +60,32 @@ public class Time implements Comparable<Time> {
         } else {
             return minutesBetweenDifferentHours(first, second);
         }
+    }
+
+    protected static Time lastTimePossible() {
+        return new Time(MAX_HOUR, MAX_MINUTE);
+    }
+
+    protected boolean isLastTime() {
+        return (this.hour == MAX_HOUR && this.minute == MAX_MINUTE)
+                || (this.hour == MAX_HOUR + CALCULATION_CORRECTIVE_MARGIN && this.minute == MIN_MINUTE);
+    }
+
+    protected Time previousTime() {
+        int preHour = this.hour;
+        int preMinute = this.minute;
+        --preMinute;
+
+        if (preMinute < MIN_MINUTE) {
+            preMinute = MAX_MINUTE;
+            --preHour;
+        }
+
+        if (preHour < MIN_HOUR) {
+            preHour = MAX_HOUR;
+        }
+
+        return new Time(preHour, preMinute);
     }
 
     protected int minutesTo(Time other) {

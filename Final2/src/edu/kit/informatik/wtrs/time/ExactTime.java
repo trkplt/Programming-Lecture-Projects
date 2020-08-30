@@ -19,12 +19,49 @@ public class ExactTime implements Comparable<ExactTime> {
         this.time = new Time(hour, minute);
     }
 
+    private ExactTime(Date date, int hour, int minute) {
+        this(date.getYear(), date.getMonth(), date.getDay(), hour, minute);
+    }
+
+    private ExactTime(Date date, Time time) {
+        this(date, time.getHour(), time.getMinute());
+    }
+
+    protected static ExactTime firstMomentOf(Date date) {
+        return new ExactTime(date.getYear(), date.getMonth(), date.getDay(), Time.MIN_HOUR, Time.MIN_MINUTE);
+    }
+
+    public static ExactTime lastMomentPossible() {
+        Date lastDate = Date.lastDatePossible();
+        Time lastTime = Time.lastTimePossible();
+        return new ExactTime(lastDate, lastTime);
+    }
+
+    public ExactTime previousMoment() {
+        Date preDate = this.date;
+        Time preTime = this.time.previousTime();
+
+        if (preTime.isLastTime()) {
+            preDate = preDate.previousDate();
+        }
+
+        if (preDate == null) {
+            return null;
+        }
+
+        return new ExactTime(preDate, preTime);
+    }
+
     protected int getHour() {
         return this.time.getHour();
     }
 
     protected int getMinute() {
         return this.time.getMinute();
+    }
+
+    protected Date getDate() {
+        return this.date;
     }
 
     //TODO: ACCESS MODIFIER

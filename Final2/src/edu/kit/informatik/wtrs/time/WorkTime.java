@@ -2,19 +2,17 @@ package edu.kit.informatik.wtrs.time;
 
 import edu.kit.informatik.wtrs.ui.Main;
 
-public class WorkTime implements Comparable<WorkTime> {
+import java.util.ArrayList;
+import java.util.Collection;
 
-    private final ExactTime workTimeStart;
-    private final ExactTime workTimeEnd;
-    private final ExactTime pauseStart;
-    private final ExactTime pauseEnd;
+public class WorkTime extends Interval implements Comparable<Interval> {
+
+    private final PauseTime pause;
 
     //TODO: CHECK VALIDITY AND ACCESS MODIFIER
     public WorkTime(ExactTime workTimeStart, ExactTime workTimeEnd, ExactTime pauseStart, ExactTime pauseEnd) {
-        this.workTimeStart = workTimeStart;
-        this.workTimeEnd = workTimeEnd;
-        this.pauseStart = pauseStart;
-        this.pauseEnd = pauseEnd;
+        super(workTimeStart, workTimeEnd);
+        this.pause = new PauseTime(pauseStart, pauseEnd);
     }
 
     //TODO: ACCESS MODIFIER
@@ -22,66 +20,28 @@ public class WorkTime implements Comparable<WorkTime> {
         this(workTimeStart, workTimeEnd, null, null);
     }
 
-    protected Duration roughWorkDuration() {
-        return this.workTimeStart.durationTo(workTimeEnd);
+    public int pauseInMinutes() {
+        return this.pause.duration().toMinutes();
     }
 
-    protected Duration pauseDuration() {
-        return this.pauseStart == null || this.pauseEnd == null ? null : this.pauseStart.durationTo(this.pauseEnd);
-    }
-
-    //TODO: ACCESS MODIFIER
-    public boolean contains(ExactTime exactTime) {
-        return this.workTimeStart.compareTo(exactTime) <= Main.COMPARE_NEUTRAL
-                && this.workTimeEnd.compareTo(exactTime) >= Main.COMPARE_NEUTRAL;
-    }
-
-    //TODO: ACCESS MODIFIER
-    public Duration pureWorkTime() {
-        Duration rough = this.roughWorkDuration();
-        Duration pause = this.pauseDuration();
-        return Duration.differenceBetween(rough, pause);
+    public int pureWorkInMinutes() {
+        return Duration.differenceBetween(this.duration(), this.pause.duration()).toMinutes();
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        WorkTime other = (WorkTime) o;
-        return this.contains(other.workTimeStart) || this.contains(other.workTimeEnd)
-                || other.contains(this.workTimeStart) || other.contains(this.workTimeEnd);
+    public int pureDurationInMinutesBefore(Date date) {
+        return this.minutesBefore(date) - this.pause.minutesBefore(date);
     }
 
-    @Override
-    public int hashCode() {
-        int prime = 31;
-        int hashCode = 1;
+    public Collection<Integer> workTimeBlocksInMinutes() {
+        Collection<Integer> durations = new ArrayList<>();
 
-        hashCode = prime * hashCode + this.workTimeStart.hashCode();
-        hashCode = prime * hashCode + this.workTimeEnd.hashCode();
-        hashCode = prime * hashCode + (this.pauseStart == null ? 0 : this.pauseStart.hashCode());
-        hashCode = prime * hashCode + (this.pauseEnd == null ? 0 : this.pauseEnd.hashCode());
-        return hashCode;
+        durations.add(this.getStart().durationTo(this.pause.getStart()).toMinutes());
+        durations.add(this.pause.getEnd().durationTo(this.getEnd()).toMinutes());
+        return durations;
     }
 
-    @Override
-    public int compareTo(WorkTime other) {
-        if (this.equals(other)) {
-            return 0;
-        }
-
-        int comparison;
-        int hourComp = Integer.compare(this.workTimeStart.getHour(), other.workTimeStart.getHour());
-
-        if (hourComp != Main.COMPARE_NEUTRAL) {
-            comparison = hourComp;
-        } else {
-            comparison = Integer.compare(this.workTimeStart.getMinute(), other.workTimeStart.getMinute());
-        }
-        return comparison;
+    public Date periodBorder(int duration, boolean isDurationWeeks) {
+        return this.getStartDate().periodBorder(duration, isDurationWeeks);
     }
 }

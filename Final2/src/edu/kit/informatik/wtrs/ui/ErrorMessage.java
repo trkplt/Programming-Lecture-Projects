@@ -4,10 +4,16 @@ public enum ErrorMessage {
 
     //TODO: MAGIC STRING?
     ERROR_INIT("Error, "),
-    ILLEGAL_YEAR(ERROR_INIT.getMessage() + "the given year is not from interval [1000, 9999]."),
-    ILLEGAL_MONTH(ERROR_INIT.getMessage() + "the given month is not from interval [1, 12]."),
-    ILLEGAL_DAY(ERROR_INIT.getMessage() + "the given day is not within the boundaries of the given month!"),
-    ILLEGAL_TIME(ERROR_INIT.getMessage() + "the given hour is not within the hours of a day!");
+    ILLEGAL_YEAR(ERROR_INIT.message + "the given year is not from interval [1000, 9999]."),
+    ILLEGAL_MONTH(ERROR_INIT.message + "the given month is not from interval [1, 12]."),
+    ILLEGAL_DAY(ERROR_INIT.message + "the given day is not within the boundaries of the given month!"),
+    ILLEGAL_TIME(ERROR_INIT.message + "the given hour is not within the hours of a day!"),
+    ILLEGAL_WORKER_ON_HOLIDAY(ERROR_INIT.message + "the given work time intersects with a holiday, "
+            + "the given worker cannot work on holidays!"),
+    PAUSE_NEEDED(ERROR_INIT.message + "the given work time contains interval(s) exceeding 6 hours without a pause!"),
+    MIN_PAUSE_NOT_PROVIDED(ERROR_INIT.message + "the given pause time does not meet the minimum conditions!"),
+    WORK_TIME_INTERSECTS_ANOTHER(ERROR_INIT.message + "the given work time intersects with an already registered "
+            + "work time!");
 
     private final String message;
 

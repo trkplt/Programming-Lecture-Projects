@@ -3,6 +3,9 @@ package edu.kit.informatik.wtrs.time;
 import edu.kit.informatik.wtrs.ui.ErrorMessage;
 import edu.kit.informatik.wtrs.ui.Main;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 public class Date implements Comparable<Date> {
@@ -15,9 +18,7 @@ public class Date implements Comparable<Date> {
     private static final int DAYS_OF_YEAR = 365;
     private static final int DAYS_OF_LEAP_YEAR = 366;
     private static final int MIN_YEAR = 1000;
-    private static final int MAX_YEAR = 9999;
     private static final int MIN_MONTH = 1;
-    private static final int MAX_MONTH = 12;
     private static final int MIN_DAY = 1;
     private static final int MAX_DAY_OF_WEEK = 7;
     private static final int MAX_DAY_OF_MONTH = 31;
@@ -31,6 +32,8 @@ public class Date implements Comparable<Date> {
     private static final String MONTH_PATTERN = "(0[1-9]|1[0-2])";
     private static final String DAY_PATTERN = "(0[1-9]|1[0-9]|2[0-9]|3[0-1])";
 
+    protected static final int MAX_MONTH = 12;
+    protected static final int MAX_YEAR = 9999;
     public static final String PATTERN = YEAR_PATTERN + DATE_SEPARATOR + MONTH_PATTERN + DATE_SEPARATOR + DAY_PATTERN;
 
     private final Day dayOfWeek;
@@ -48,6 +51,7 @@ public class Date implements Comparable<Date> {
         this.monthOfYear = Month.getMonth(month);
 
         //TODO: YEAR, MONTH AND ROUGHLY DAY INDEX CHECKS IN COMMAND
+        //TODO: UPDATE!! ALL CHECKS BETTER? IN COMMAND, PERIOD FINDER ENTERS INVALID DAYS
         /*if (year < Date.MIN_YEAR || year > Date.MAX_YEAR) {
             this.errorMessage = ErrorMessage.ILLEGAL_YEAR;
         } else if (month < Date.MIN_MONTH || month > Date.MAX_MONTH) {
@@ -68,15 +72,15 @@ public class Date implements Comparable<Date> {
         return dZero;
     }
 
-    private int getDay() {
+    protected int getDay() {
         return this.day;
     }
 
-    private int getMonth() {
+    protected int getMonth() {
         return this.month;
     }
 
-    private int getYear() {
+    protected int getYear() {
         return this.year;
     }
 
@@ -124,6 +128,10 @@ public class Date implements Comparable<Date> {
         }
     }
 
+    protected static Date lastDatePossible() {
+        return new Date(MAX_YEAR, MAX_MONTH, Month.getMonth(MAX_MONTH).getNumberOfDays(MAX_YEAR));
+    }
+
     private int daysPrecedingInYear() {
         int days = Main.COUNTER_START_ZERO;
         for (int month = MIN_MONTH; month < this.month; month++) {
@@ -140,12 +148,217 @@ public class Date implements Comparable<Date> {
         return days + this.monthOfYear.getNumberOfDays(this.year) - this.day;
     }
 
+    public Date previousDate() {
+        int newDay = this.day;
+        int newMonth = this.month;
+        int newYear = this.year;
+        --newDay;
+
+        if (newDay < MIN_DAY) {
+            --newMonth;
+        }
+
+        if (newMonth < MIN_MONTH) {
+            newMonth = MAX_MONTH;
+            --newYear;
+        }
+
+        if (newYear < MIN_YEAR) {
+            return null;
+        }
+
+        if (newDay < MIN_DAY) {
+            newDay = Month.getMonth(newMonth).getNumberOfDays(newYear);
+        }
+
+        return new Date(newYear, newMonth, newDay);
+    }
+
+    public Date nextDate() {
+        int newDay = this.day;
+        int newMonth = this.month;
+        int newYear = this.year;
+        ++newDay;
+
+        if (newDay > this.monthOfYear.getNumberOfDays(newYear)) {
+            newDay = MIN_DAY;
+            newMonth++;
+        }
+
+        if (newMonth > MAX_MONTH) {
+            newMonth = MIN_MONTH;
+            newYear++;
+        }
+
+        if (newYear > MAX_YEAR) {
+            return null;
+        }
+
+        return new Date(newYear, newMonth, newDay);
+    }
+
     protected boolean isValid() {
         return this.errorMessage == null;
     }
 
     protected ErrorMessage getErrorMessage() {
         return this.errorMessage;
+    }
+
+    protected Collection<Date> datesTo(Date other) {
+        if (this.compareTo(other) > Main.COMPARE_NEUTRAL) {
+            return other.datesTo(this);
+        }
+
+        List<Date> dates = new ArrayList<>();
+        dates.add(this);
+
+        if (this.equals(other)) {
+            return dates;
+        }
+
+        Date newDate = this.nextDate();
+
+        if (newDate == null) {
+            return dates;
+        }
+
+        while (!newDate.equals(other)) {
+            dates.add(newDate);
+            newDate = newDate.nextDate();
+
+            if (newDate == null) {
+                return dates;
+            }
+        }
+
+        dates.add(newDate);
+        return dates;
+    }
+
+    private static Date periodBorderMonthsForwardOut(int year, int month, int day) {
+        boolean isDurationWeeks = false;
+        int newDuration = Main.COUNTER_START_ZERO;
+
+        int newDay = day;
+        int newMonth = month - MAX_MONTH;
+        int newYear = year;
+
+        if (newYear < MAX_YEAR) {
+            ++newYear;
+        } else {
+            newYear = MAX_YEAR;
+            newMonth = MAX_MONTH;
+            newDay = Month.getMonth(newMonth).getNumberOfDays(newYear);
+            return new Date(newYear, newMonth, newDay);
+        }
+
+        return new Date(newYear, newMonth, newDay).periodBorder(newDuration, isDurationWeeks);
+    }
+
+    private static Date periodBorderMonthsBackwardOut(int year, int month, int day) {
+        boolean isDurationWeeks = false;
+        int newDuration = Main.COUNTER_START_ZERO;
+
+        int newDay = day;
+        int newMonth = MAX_MONTH - month;
+        int newYear = year;
+
+        if (newYear > MIN_YEAR) {
+            --newYear;
+        } else {
+            newYear = MIN_YEAR;
+            newMonth = MIN_MONTH;
+            newDay = MIN_DAY;
+            return new Date(newYear, newMonth, newDay);
+        }
+
+        return new Date(newYear, newMonth, newDay).periodBorder(newDuration, isDurationWeeks);
+    }
+
+    public Date periodBorder(int duration, boolean isDurationWeeks) {
+        if (isDurationWeeks) {
+            return periodBorderWeeks(duration);
+        }
+
+        //from now on the duration is in months
+        int newDay = this.day;
+        int newMonth = this.month + duration;
+        int newYear = this.year;
+
+        if (newMonth > MAX_MONTH) {
+            return periodBorderMonthsForwardOut(newYear, newMonth, newDay);
+        } else if (newMonth < MIN_MONTH) {
+            return periodBorderMonthsBackwardOut(newYear, newMonth, newDay);
+        }
+
+        int maxDaysOfMonth = Month.getMonth(newMonth).getNumberOfDays(newYear);
+        newDay = Math.min(newDay, maxDaysOfMonth);
+
+        //return new Date(newYear, newMonth, newDay).nextDate(); ??? mesela 31 Temmuz fristi 31 Ağustosu da dahil ediyor alttaki gibi olunca
+        //nextDate sadece forward olursa doğru, backward ise previousDate lazım
+        return new Date(newYear, newMonth, newDay);
+    }
+
+    private Date periodBorderWeeksForwardOut(int year, int month, int day, int maxDayOfMonth) {
+        boolean isDurationWeeks = true;
+        int newDuration = Main.COUNTER_START_ZERO;
+
+        int newDay = day - maxDayOfMonth;
+        int newMonth = month + Time.CALCULATION_CORRECTIVE_MARGIN;
+        newMonth = newMonth > MAX_MONTH ? MIN_MONTH : newMonth;
+        int newYear = newMonth == MIN_MONTH ? year + Time.CALCULATION_CORRECTIVE_MARGIN : year;
+
+        if (newYear > MAX_YEAR) {
+            newYear = MAX_YEAR;
+            newMonth = MAX_MONTH;
+            newDay = Month.getMonth(newMonth).getNumberOfDays(newYear);
+            return new Date(newYear, newMonth, newDay);
+        }
+
+        return new Date(newYear, newMonth, newDay).periodBorder(newDuration, isDurationWeeks);
+    }
+
+    private Date periodBorderWeeksBackwardOut(int year, int month, int day) {
+        boolean isDurationWeeks = true;
+        int newDuration = Main.COUNTER_START_ZERO;
+
+        int newMonth = month - Time.CALCULATION_CORRECTIVE_MARGIN;
+        int newYear = year;
+
+        if (newMonth < MIN_MONTH) {
+            newMonth = MAX_MONTH;
+            --newYear;
+        }
+
+        if (newYear < MIN_YEAR) {
+            return new Date(MIN_YEAR, MIN_MONTH, MIN_DAY);
+        }
+
+        int maxDayOfMonth = Month.getMonth(newMonth).getNumberOfDays(newYear);
+        int newDay = maxDayOfMonth + day;
+
+        return new Date(newYear, newMonth, newDay).periodBorder(newDuration, isDurationWeeks);
+    }
+
+    private Date periodBorderWeeks(int weeks) {
+        int newDay = this.day + (weeks * MAX_DAY_OF_WEEK);
+        int newMonth = this.month;
+        int newYear = this.year;
+        int maxDayOfMonth = this.monthOfYear.getNumberOfDays(newYear);
+
+        if (newDay > maxDayOfMonth) {
+            return periodBorderWeeksForwardOut(newYear, newMonth, newDay, maxDayOfMonth);
+        } else if (newDay < MIN_DAY) {
+            return periodBorderWeeksBackwardOut(newYear, newMonth, newDay);
+        }
+
+        newDay = Math.min(newDay, maxDayOfMonth);
+
+        //TODO: PREVIOUS NEXT İLE DÜZELT
+        //return new Date(newYear, newMonth, newDay).nextDate(); ??? mesela 31 Temmuz fristi 31 Ağustosu da dahil ediyor alttaki gibi olunca
+        //nextDate sadece forward olursa doğru, backward ise previousDate lazım
+        return new Date(newYear, newMonth, newDay);
     }
 
     @Override
